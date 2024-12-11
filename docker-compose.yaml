@@ -1,0 +1,17 @@
+services:
+  redis:
+    container_name: redis_for_bot
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_for_bot_data:/data
+      - ./redis.conf:/redis.conf
+    environment:
+      REDIS_FOR_BOT_PASSWORD: ${REDIS_FOR_BOT_PASSWORD}
+    command: ["sh", "-c", "envsubst < /redis.conf > /tmp/processed_redis.conf && redis-server /tmp/processed_redis.conf"]
+
+volumes:
+  redis_for_bot_data:

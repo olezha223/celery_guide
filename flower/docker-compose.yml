@@ -1,0 +1,55 @@
+services:
+  web:
+    container_name: fast-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: bash -c "uvicorn fastapi_app:fast_api_app --host 0.0.0.0 --port 8000"
+    volumes:
+      - .:/app
+    env_file: ./backend/src/.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+
+  redis:
+    container_name: redis
+    build:
+      context: ../
+      dockerfile: Dockerfile
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_for_report_data:/data
+      - ../redis.conf:/redis.conf
+    environment:
+      REDIS_FOR_BOT_PASSWORD: "olezha"
+    command: [ "sh", "-c", "envsubst < /redis.conf > /tmp/processed_redis.conf && redis-server /tmp/processed_redis.conf" ]
+
+  celery:
+    build: .
+    init: true
+    command: bash -c "celery -A celery_app worker -n worker_github@%h -l INFO --concurrency=3 -f celery.logs"
+    volumes:
+      - .:/app
+    depends_on:
+      - web
+      - redis
+
+  flower:
+    image: mher/flower
+    build: .
+    command: celery -A celery_app flower --port=8603 --max_tasks=5000
+    environment:
+      - CELERY_BROKER_URL=redis://:olezha@localhost:6379/0
+      - FLOWER_PORT=8603
+    ports:
+      - 8603:8603
+    depends_on:
+      - redis
+      - celery
+
+
+volumes:
+  redis_for_report_data:
