@@ -72,6 +72,7 @@ def complex_task(self, iterations):
                 self.update_state(
                     state=states.FAILURE,
                     meta={
+                        'result': ZeroDivisionError,
                         'current': i,
                         'total': total_iterations,
                         'error': "ZeroDivisionError: division by zero",
@@ -105,11 +106,11 @@ def parse_repositories(self, username: str):
         url = f"https://github.com/{username}"
         response = requests.get(url)
         soup = BeautifulSoup(response.text, "html.parser")
-        repositories = soup.find_all("li", class_="repo-list-item")
+        repositories = soup.find_all("li", class_="mb-3 d-flex flex-content-stretch col-12 col-md-6 col-lg-6")
         self.update_state(state="PROGRES", meta={"detail": "спарсили репо"})
         repo_list = []
         for repository in repositories:
-            repo_list.append(repository.find("a").text)
+            repo_list.append(repository.find("a").text.strip())
             self.update_state(state="PROGRES", meta={"detail": f'добавили {repository.find("a").text} в список'})
 
         import json

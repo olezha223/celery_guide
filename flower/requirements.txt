@@ -1,0 +1,7 @@
+fastapi
+celery
+redis
+requests
+bs4
+uvicorn
+flower

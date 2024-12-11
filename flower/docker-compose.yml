@@ -7,7 +7,6 @@ services:
     command: bash -c "uvicorn fastapi_app:fast_api_app --host 0.0.0.0 --port 8000"
     volumes:
       - .:/app
-    env_file: ./backend/src/.env
     ports:
       - "8000:8000"
     depends_on:
@@ -40,9 +39,9 @@ services:
   flower:
     image: mher/flower
     build: .
-    command: celery -A celery_app flower --port=8603 --max_tasks=5000
+    command: celery flower --port=8603 --max_tasks=5000
     environment:
-      - CELERY_BROKER_URL=redis://:olezha@localhost:6379/0
+      - CELERY_BROKER_URL=redis://:olezha@redis:6379/0
       - FLOWER_PORT=8603
     ports:
       - 8603:8603

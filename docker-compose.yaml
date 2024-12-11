@@ -10,7 +10,7 @@ services:
       - redis_for_bot_data:/data
       - ./redis.conf:/redis.conf
     environment:
-      REDIS_FOR_BOT_PASSWORD: ${REDIS_FOR_BOT_PASSWORD}
+      REDIS_FOR_BOT_PASSWORD: "olezha"
     command: ["sh", "-c", "envsubst < /redis.conf > /tmp/processed_redis.conf && redis-server /tmp/processed_redis.conf"]
 
 volumes:
